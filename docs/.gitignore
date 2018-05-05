@@ -5,17 +5,12 @@
 *.lz4
 *.lzma
 *.lzo
-*.o
 *.out
 *.patch
-*.so
+*.pyc
 *.tar
+*.xml
 *.xz
-
-# tests
-test/single_list
-test/double_list
-test/ring_buffer
 
 # dotfiles
 !.gitignore
@@ -24,3 +19,9 @@ test/ring_buffer
 *.orig
 *~
 \#*#
+
+# doxygen generated files
+xml
+
+# sphinx generated files
+_build

@@ -18,11 +18,11 @@
  * along with focs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "list/double_list.h"
+#include "list/single_list.h"
 
-static struct dl_element * __element_init(struct double_list * list, void * data)
+static struct sl_element * __element_init(struct single_list * list, void * data)
 {
-	struct dl_element * elem;
+	struct sl_element * elem;
 
 	elem = malloc(sizeof(*elem));
 	if(!elem)
@@ -37,18 +37,18 @@ static struct dl_element * __element_init(struct double_list * list, void * data
 	return elem;
 
 exit:
-	if(elem)
+	if(elem) {
+		if(elem->data)
+			free(elem->data);
 		free(elem);
-
-	if(elem->data)
-		free(elem->data);
+	}
 
 	return NULL;
 }
 
-static struct dl_element * __lookup_element(struct double_list * list, size_t pos)
+static struct sl_element * __lookup_element(struct single_list * list, size_t pos)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	if(pos >= list->length)
 		return NULL;
@@ -59,13 +59,9 @@ static struct dl_element * __lookup_element(struct double_list * list, size_t po
 	return current;
 }
 
-static void __push_head(struct double_list * list, struct dl_element * current)
+static void __push_head(struct single_list * list, struct sl_element * current)
 {
-	if(list->head)
-		list->head->prev = current;
-
 	current->next = list->head;
-	current->prev = NULL;
 	list->head = current;
 
 	if(!list->tail)
@@ -74,32 +70,11 @@ static void __push_head(struct double_list * list, struct dl_element * current)
 	(list->length)++;
 }
 
-static struct dl_element * __pop_head(struct double_list * list)
-{
-	struct dl_element * current;
-
-	if(list->length == 0)
-		return NULL;
-
-	current = list->head;
-	list->head = current->next;
-
-	if(list->head)
-		list->head->prev = NULL;
-	else
-		list->tail = NULL;
-
-	(list->length)--;
-
-	return current;
-}
-
-static void __push_tail(struct double_list * list, struct dl_element * current)
+static void __push_tail(struct single_list * list, struct sl_element * current)
 {
 	if(list->tail)
 		list->tail->next = current;
 
-	current->prev = list->tail;
 	current->next = NULL;
 	list->tail = current;
 
@@ -109,15 +84,37 @@ static void __push_tail(struct double_list * list, struct dl_element * current)
 	(list->length)++;
 }
 
-static struct dl_element * __pop_tail(struct double_list * list)
+static struct sl_element * __pop_head(struct single_list * list)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	if(list->length == 0)
 		return NULL;
 
+	current = list->head;
+	list->head = current->next;
+
+	if(!list->head)
+		list->tail = NULL;
+
+	(list->length)--;
+
+	return current;
+}
+
+static struct sl_element * __pop_tail(struct single_list * list)
+{
+	struct sl_element * current;
+	struct sl_element * prev;
+
+	if(list->length == 0)
+		return NULL;
+
+	/* Find the previous element. */
+	linked_list_while(list, prev, prev->next != list->tail) {}
+
 	current = list->tail;
-	list->tail = current->prev;
+	list->tail = prev;
 
 	if(list->tail)
 		list->tail->next = NULL;
@@ -129,9 +126,9 @@ static struct dl_element * __pop_tail(struct double_list * list)
 	return current;
 }
 
-static bool __insert_element(struct double_list * list, struct dl_element * current, size_t pos)
+static bool __insert_element(struct single_list * list, struct sl_element * current, size_t pos)
 {
-	struct dl_element * prev;
+	struct sl_element * prev;
 
 	if(pos > list->length)
 		return false;
@@ -142,10 +139,7 @@ static bool __insert_element(struct double_list * list, struct dl_element * curr
 		__push_tail(list, current);
 	} else {
 		prev = __lookup_element(list, pos - 1);
-
-		current->prev = prev;
 		current->next = prev->next;
-		prev->next->prev = current;
 		prev->next = current;
 
 		(list->length)++;
@@ -154,9 +148,10 @@ static bool __insert_element(struct double_list * list, struct dl_element * curr
 	return true;
 }
 
-static struct dl_element * __remove_element(struct double_list * list, size_t pos)
+static struct sl_element * __remove_element(struct single_list * list, size_t pos)
 {
-	struct dl_element * current;
+	struct sl_element * current;
+	struct sl_element * prev;
 
 	if(pos >= list->length)
 		return NULL;
@@ -166,9 +161,9 @@ static struct dl_element * __remove_element(struct double_list * list, size_t po
 	} else if(pos == list->length - 1) {
 		current = __pop_tail(list);
 	} else {
-		current = __lookup_element(list, pos);
-		current->prev->next = current->next;
-		current->next->prev = current->prev;
+		prev = __lookup_element(list, pos - 1);
+		current = prev->next;
+		prev->next = current->next;
 
 		(list->length)--;
 	}
@@ -176,26 +171,27 @@ static struct dl_element * __remove_element(struct double_list * list, size_t po
 	return current;
 }
 
-static void __delete_element(struct double_list * list, struct dl_element * elem)
+static void __delete_element(struct single_list * list, struct sl_element * elem)
 {
+	struct sl_element * prev;
+
+	linked_list_while(list, prev, prev->next != elem) {}
+
 	/* Fix head and tail. */
 	if(list->head == elem)
 		list->head = elem->next;
 	if(list->tail == elem)
-		list->tail = elem->prev;
+		list->tail = prev;
 
-	/* Fix pointers in surrounding elements. */
-	if(elem->prev)
-		elem->prev->next = elem->next;
-	if(elem->next)
-		elem->next->prev = elem->prev;
+	if(prev)
+		prev->next = elem->next;
 
 	(list->length)--;
 }
 
-static void __delete_before(struct double_list * list, struct dl_element * mark)
+static void __delete_before(struct single_list * list, struct sl_element * mark)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	linked_list_while_safe(list, current, current != mark) {
 		free(current->data);
@@ -205,21 +201,25 @@ static void __delete_before(struct double_list * list, struct dl_element * mark)
 	}
 
 	list->head = mark;
-	if(mark)
-		mark->prev = NULL;
-	else
+	if(!mark)
 		list->tail = NULL;
 }
 
-static void __delete_after(struct double_list * list, struct dl_element * mark)
+static void __delete_after(struct single_list * list, struct sl_element * mark)
 {
-	struct dl_element * current;
+	bool passover = true;
+	struct sl_element * current;
 
-	double_list_while_rev_safe(list, current, current != mark) {
-		free(current->data);
-		free(current);
+	linked_list_foreach_safe(list, current) {
+		if(!passover || !mark) {
+			free(current->data);
+			free(current);
 
-		(list->length)--;
+			(list->length)--;
+		}
+
+		if(current == mark)
+			passover = false;
 	}
 
 	list->tail = mark;
@@ -229,7 +229,7 @@ static void __delete_after(struct double_list * list, struct dl_element * mark)
 		list->head = NULL;
 }
 
-int dl_alloc(struct double_list ** list, size_t data_size)
+int sl_alloc(struct single_list ** list, size_t data_size)
 {
 	int err;
 
@@ -251,9 +251,9 @@ exit:
 	return err;
 }
 
-void dl_free(struct double_list ** list)
+void sl_free(struct single_list ** list)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry((*list)->rwlock);
 
@@ -270,7 +270,7 @@ void dl_free(struct double_list ** list)
 	free(*list);
 }
 
-bool dl_null(struct double_list * list)
+bool sl_null(struct single_list * list)
 {
 	bool null;
 
@@ -281,9 +281,9 @@ bool dl_null(struct double_list * list)
 	return null;
 }
 
-void dl_push_head(struct double_list * list, void * data)
+void sl_push_head(struct single_list * list, void * data)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	current = __element_init(list, data);
 
@@ -292,9 +292,9 @@ void dl_push_head(struct double_list * list, void * data)
 	rwlock_writer_exit(list->rwlock);
 }
 
-void dl_push_tail(struct double_list * list, void * data)
+void sl_push_tail(struct single_list * list, void * data)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	current = __element_init(list, data);
 
@@ -303,10 +303,10 @@ void dl_push_tail(struct double_list * list, void * data)
 	rwlock_writer_exit(list->rwlock);
 }
 
-void * dl_pop_head(struct double_list * list)
+void * sl_pop_head(struct single_list * list)
 {
 	void * data = NULL;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry(list->rwlock);
 	current = __pop_head(list);
@@ -320,10 +320,10 @@ void * dl_pop_head(struct double_list * list)
 	return data;
 }
 
-void * dl_pop_tail(struct double_list * list)
+void * sl_pop_tail(struct single_list * list)
 {
 	void * data = NULL;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry(list->rwlock);
 	current = __pop_tail(list);
@@ -337,10 +337,10 @@ void * dl_pop_tail(struct double_list * list)
 	return data;
 }
 
-bool dl_insert(struct double_list * list, void * data, size_t pos)
+bool sl_insert(struct single_list * list, void * data, size_t pos)
 {
 	bool success;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	current = __element_init(list, data);
 
@@ -351,9 +351,9 @@ bool dl_insert(struct double_list * list, void * data, size_t pos)
 	return success;
 }
 
-bool dl_delete(struct double_list * list, size_t pos)
+bool sl_delete(struct single_list * list, size_t pos)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry(list->rwlock);
 	current = __remove_element(list, pos);
@@ -369,10 +369,10 @@ bool dl_delete(struct double_list * list, size_t pos)
 	return false;
 }
 
-void * dl_remove(struct double_list * list, size_t pos)
+void * sl_remove(struct single_list * list, size_t pos)
 {
 	void * data = NULL;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry(list->rwlock);
 	current = __remove_element(list, pos);
@@ -386,9 +386,9 @@ void * dl_remove(struct double_list * list, size_t pos)
 	return data;
 }
 
-void * dl_fetch(struct double_list * list, size_t pos)
+void * sl_fetch(struct single_list * list, size_t pos)
 {
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_reader_entry(list->rwlock);
 	current = __lookup_element(list, pos);
@@ -400,10 +400,21 @@ void * dl_fetch(struct double_list * list, size_t pos)
 	return NULL;
 }
 
-bool dl_contains(struct double_list * list, void * data)
+/**
+ * sl_contains() - Determines if a list contains a value
+ * @list: The list to search
+ * @data: The data to search for in the list
+ *
+ * Determines if @list contains an entry matching @data.
+ * The operation compares the contents of the memory pointed to by @data, and
+ * not the memory addresses of the data pointers.
+ *
+ * Return: ``true`` if a matching entry is found, otherwise ``false``
+ */
+bool sl_contains(struct single_list * list, void * data)
 {
 	bool success = false;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_reader_entry(list->rwlock);
 
@@ -419,12 +430,28 @@ bool dl_contains(struct double_list * list, void * data)
 	return success;
 }
 
-bool dl_any(struct double_list * list, pred_fn p)
+/**
+ * sl_any() - Determines if any value in a list satisifies some condition
+ * @list: A list of values
+ * @p: The predicate function (representing a condition to be satisfied).
+ *
+ * Runtime:
+ * * worst: O(n)
+ * * average: O(n/2)
+ * * best: O(1)
+ *
+ * Iterate over each value stored in @list, and determine if any of them
+ * satisfies @p (e.g. @p returns true when passed that value).  This function
+ *
+ * Return: ``true`` if there is at least one value that satisfies the predicate.
+ * Otherwise, it returns ``false``.
+ */
+bool sl_any(struct single_list * list, pred_fn p)
 {
 	bool success = false;
-	struct dl_element * current;
+	struct sl_element * current;
 
-	if(dl_null(list))
+	if(sl_null(list))
 		return false;
 
 	rwlock_reader_entry(list->rwlock);
@@ -441,12 +468,28 @@ bool dl_any(struct double_list * list, pred_fn p)
 	return success;
 }
 
-bool dl_all(struct double_list * list, pred_fn p)
+/**
+ * sl_all() - Determines if all values in a list satisify some condition
+ * @list: A list of values
+ * @p: The predicate function (representing a condition to be satisfied).
+ *
+ * Runtime:
+ * * worst: O(n)
+ * * average: O(n/2)
+ * * best: O(1)
+ *
+ * Iterate over each value stored in @list, and determine if all of them
+ * satisfy @p (e.g. @p returns true when passed that value).
+ *
+ * Return: ``false`` if there is at least one value that does not satisfy the
+ * predicate.  Otherwise, it returns ``true``.
+ */
+bool sl_all(struct single_list * list, pred_fn p)
 {
 	bool success = true;
-	struct dl_element * current;
+	struct sl_element * current;
 
-	if(dl_null(list))
+	if(sl_null(list))
 		return false;
 
 	rwlock_reader_entry(list->rwlock);
@@ -463,12 +506,12 @@ bool dl_all(struct double_list * list, pred_fn p)
 	return success;
 }
 
-bool dl_filter(struct double_list * list, pred_fn p)
+bool sl_filter(struct single_list * list, pred_fn p)
 {
 	bool changed = false;
-	struct dl_element * current;
+	struct sl_element * current;
 
-	if(dl_null(list))
+	if(sl_null(list))
 		return false;
 
 	rwlock_writer_entry(list->rwlock);
@@ -488,10 +531,10 @@ bool dl_filter(struct double_list * list, pred_fn p)
 	return changed;
 }
 
-bool dl_drop_while(struct double_list * list, pred_fn p)
+bool sl_drop_while(struct single_list * list, pred_fn p)
 {
 	size_t orig_length;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry(list->rwlock);
 
@@ -515,10 +558,11 @@ bool dl_drop_while(struct double_list * list, pred_fn p)
 	return (orig_length != list->length);
 }
 
-bool dl_take_while(struct double_list * list, pred_fn p)
+bool sl_take_while(struct single_list * list, pred_fn p)
 {
 	size_t orig_length;
-	struct dl_element * current;
+	struct sl_element * current;
+	struct sl_element * prev = NULL;
 
 	rwlock_writer_entry(list->rwlock);
 
@@ -528,9 +572,11 @@ bool dl_take_while(struct double_list * list, pred_fn p)
 	 * satisfy the predicate; delete that element and every one after. */
 	linked_list_foreach(list, current) {
 		if(!p(current->data)) {
-			__delete_after(list, current->prev);
+			__delete_after(list, prev);
 			break;
 		}
+
+		prev = current;
 	}
 
 	rwlock_writer_exit(list->rwlock);
@@ -538,10 +584,23 @@ bool dl_take_while(struct double_list * list, pred_fn p)
 	return (orig_length != list->length);
 }
 
-void dl_map(struct double_list * list, map_fn fn)
+/**
+ * sl_map() - Map a function over a linked list in-place.
+ * @list: A list of values
+ * @fn: A function that will transform each value in the list
+ *
+ * Runtime: O(n)
+ *
+ * A map operation iterates over the provided list (@list) and transforms each
+ * data element using the function @fn, replacing the old value with the result
+ * of the transformation:
+ * for i from 0 to &list->length:
+ * 	@list[i] = @fn(@list[i])
+ */
+void sl_map(struct single_list * list, map_fn fn)
 {
 	void * result;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	rwlock_writer_entry(list->rwlock);
 	linked_list_foreach(list, current) {
@@ -560,15 +619,21 @@ void dl_map(struct double_list * list, map_fn fn)
 	rwlock_writer_exit(list->rwlock);
 }
 
-void dl_reverse(struct double_list * list)
+/**
+ * sl_reverse() - Reverse a list in place.
+ * @list: The list to reverse
+ *
+ * Reverses a list in place so that the elements are in reverse order and the
+ * head and tail are switched.
+ */
+void sl_reverse(struct single_list * list)
 {
-	struct dl_element * current;
-	struct dl_element * tmp;
+	struct sl_element * current;
+	struct sl_element * tmp = NULL;
 
 	linked_list_foreach_safe(list, current) {
-		tmp = current->prev;
-		current->prev = current->next;
 		current->next = tmp;
+		tmp = current;
 	}
 
 	/* Swap the list head and tail */
@@ -577,13 +642,27 @@ void dl_reverse(struct double_list * list)
 	list->tail = tmp;
 }
 
-void * dl_foldr(const struct double_list * list,
-		      foldr_fn fn,
-		      const void * init)
+/**
+ * sl_foldr() - Right associative fold for linked lists.
+ * @list: A list of values to reduce
+ * @fn: A binary function that will sequentially reduce values
+ * @init: An initial value for the fold
+ *
+ * Runtime: O(n)
+ *
+ * A right associative fold uses the binary function @fn to sequentially reduce
+ * a list of values to a single value, starting from some initial value @init:
+ * @fn(@init, @fn(@list[0], fn(@list[1], ...)))
+ *
+ * If @list is empty, the fold will be equal to the value of @init.
+ */
+void * sl_foldr(const struct single_list * list,
+		foldr_fn fn,
+		const void * init)
 {
 	void * result;
 	void * accumulator;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	accumulator = malloc(list->data_size);
 	memcpy(accumulator, init, list->data_size);
@@ -607,13 +686,27 @@ void * dl_foldr(const struct double_list * list,
 	return accumulator;
 }
 
-void * dl_foldl(const struct double_list * list,
-		      foldl_fn fn,
-		      const void * init)
+/**
+ * sl_foldl() - Left associative fold for linked lists.
+ * @list: A list of values to reduce
+ * @fn: A binary function that will sequentially reduce values
+ * @init: An initial value for the fold
+ *
+ * Runtime: O(n)
+ *
+ * A left associative fold uses the binary function @fn to sequentially reduce
+ * a list of values to a single value, starting from some initial value @init:
+ * @fn(@fn(@fn(..., @init), @list[0]), @list[1])
+ *
+ * If @list is empty, the fold will be equal to the value of @init.
+ */
+void * sl_foldl(const struct single_list * list,
+		foldl_fn fn,
+		const void * init)
 {
 	void * result;
 	void * accumulator;
-	struct dl_element * current;
+	struct sl_element * current;
 
 	accumulator = malloc(list->data_size);
 	memcpy(accumulator, init, list->data_size);

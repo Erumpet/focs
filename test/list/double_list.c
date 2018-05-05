@@ -24,7 +24,7 @@
 START_TEST(test_dl_alloc)
 {
 	int err;
-	struct linked_list * list = NULL;
+	struct double_list * list = NULL;
 
 	err = dl_alloc(&list, 0);
 
@@ -38,7 +38,7 @@ END_TEST
 
 START_TEST(test_dl_null_true)
 {
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, 0);
 	ck_assert(dl_null(list));
@@ -49,7 +49,7 @@ END_TEST
 START_TEST(test_dl_null_false)
 {
 	uint8_t val = 1;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(val));
 	dl_push_head(list, &val);
@@ -61,7 +61,7 @@ END_TEST
 START_TEST(test_dl_push_head_single)
 {
 	uint8_t val = 1;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(val));
 	dl_push_head(list, &val);
@@ -80,7 +80,7 @@ START_TEST(test_dl_push_head_multiple)
 	uint8_t val1 = 1;
 	uint8_t val2 = 2;
 	uint8_t val3 = 3;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(val1));
 
@@ -92,7 +92,7 @@ START_TEST(test_dl_push_head_multiple)
 	ck_assert(list->tail);
 	ck_assert_int_eq(list->length, 3);
 
-	struct ll_element * current = list->head;
+	struct dl_element * current = list->head;
 	ck_assert_int_eq(*(uint8_t *) current->data, val3);
 	current = current->next;
 	ck_assert_int_eq(*(uint8_t *) current->data, val2);
@@ -107,7 +107,7 @@ END_TEST
 START_TEST(test_dl_push_tail_single)
 {
 	uint8_t val = 1;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 	dl_push_tail(list, &val);
@@ -126,7 +126,7 @@ START_TEST(test_dl_push_tail_multiple)
 	uint8_t val1 = 1;
 	uint8_t val2 = 2;
 	uint8_t val3 = 3;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -138,7 +138,7 @@ START_TEST(test_dl_push_tail_multiple)
 	ck_assert(list->tail);
 	ck_assert_int_eq(list->length, 3);
 
-	struct ll_element * current = list->head;
+	struct dl_element * current = list->head;
 	ck_assert_int_eq(*(uint8_t *) current->data, val1);
 	current = current->next;
 	ck_assert_int_eq(*(uint8_t *) current->data, val2);
@@ -153,7 +153,7 @@ END_TEST
 START_TEST(test_dl_pop_head_empty)
 {
 	void * val;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, 0);
 
@@ -172,7 +172,7 @@ START_TEST(test_dl_pop_head_single)
 {
 	uint8_t val = 1;
 	uint8_t * out;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(val));
 	dl_push_head(list, &val);
@@ -197,7 +197,7 @@ START_TEST(test_dl_pop_head_multiple)
 	uint8_t * out1;
 	uint8_t * out2;
 	uint8_t * out3;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -231,7 +231,7 @@ END_TEST
 START_TEST(test_dl_pop_tail_empty)
 {
 	void * val;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, 0);
 
@@ -250,7 +250,7 @@ START_TEST(test_dl_pop_tail_single)
 {
 	uint8_t in = 1;
 	uint8_t * out;
-	struct linked_list * list;
+	struct double_list * list;
 	dl_alloc(&list, sizeof(in));
 	dl_push_tail(list, &in);
 
@@ -274,7 +274,7 @@ START_TEST(test_dl_pop_tail_multiple)
 	uint8_t * out1;
 	uint8_t * out2;
 	uint8_t * out3;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -305,7 +305,7 @@ START_TEST(test_dl_insert_single)
 {
 	uint8_t in = 1;
 	bool success;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -335,7 +335,7 @@ START_TEST(test_dl_insert_multiple)
 	uint8_t * out3;
 	uint8_t * out4;
 
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -377,7 +377,7 @@ START_TEST(test_dl_delete_empty)
 {
 	bool r1;
 	bool r2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -401,7 +401,7 @@ START_TEST(test_dl_delete_single)
 	bool r1;
 	bool r2;
 	bool r3;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
@@ -433,7 +433,7 @@ START_TEST(test_dl_delete_multiple)
 	bool r3;
 	bool r4;
 	bool r5;
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [1, 2, 3, 4] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -472,7 +472,7 @@ START_TEST(test_dl_remove_empty)
 {
 	void * val1;
 	void * val2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -494,7 +494,7 @@ START_TEST(test_dl_remove_single)
 {
 	uint8_t in = 1;
 	uint8_t * out;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -524,7 +524,7 @@ START_TEST(test_dl_remove_multiple)
 	uint8_t * out3;
 	uint8_t * out4;
 	uint8_t * out5;
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [1, 2, 3, 4] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -572,7 +572,7 @@ START_TEST(test_dl_fetch_empty)
 {
 	void * val1;
 	void * val2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, 0);
 
@@ -594,7 +594,7 @@ START_TEST(test_dl_fetch_single)
 {
 	uint8_t in = 1;
 	uint8_t * out;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
@@ -623,7 +623,7 @@ START_TEST(test_dl_fetch_multiple)
 	uint8_t * out3;
 	uint8_t * out4;
 	uint8_t * out5;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -663,7 +663,7 @@ START_TEST(test_dl_contains_empty)
 {
 	bool found;
 	uint8_t val = 1;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -686,7 +686,7 @@ START_TEST(test_dl_contains_single)
 	uint8_t in = 1;
 	uint8_t val1 = 1;
 	uint8_t val2 = 2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
@@ -710,7 +710,7 @@ START_TEST(test_dl_contains_multiple)
 	bool found[5];
 	uint8_t in[] = {1, 2, 3, 4};
 	uint8_t val[] = {1, 2, 3, 4, 5};
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [1, 2, 3, 4] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -753,11 +753,11 @@ bool pred_lte1(uint8_t * n)
 START_TEST(test_dl_any_empty)
 {
 	bool any;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
-	any = dl_any(list, (pred_fn_t) pred_gte1);
+	any = dl_any(list, (pred_fn) pred_gte1);
 
 	ck_assert(!any);
 
@@ -773,13 +773,13 @@ START_TEST(test_dl_any_single)
 {
 	bool any[2];
 	uint8_t in = 0;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
-	any[0] = dl_any(list, (pred_fn_t) pred_gte1);
-	any[1] = dl_any(list, (pred_fn_t) pred_lte1);
+	any[0] = dl_any(list, (pred_fn) pred_gte1);
+	any[1] = dl_any(list, (pred_fn) pred_lte1);
 
 	ck_assert(!any[0]);
 	ck_assert(any[1]);
@@ -796,7 +796,7 @@ START_TEST(test_dl_any_multiple)
 {
 	bool any[2];
 	uint8_t in[] = {2, 3, 4};
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [1, 2, 3, 4] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -805,8 +805,8 @@ START_TEST(test_dl_any_multiple)
 	dl_push_tail(list, &in[2]);
 
 	/* Check the elements out of order. */
-	any[0] = dl_any(list, (pred_fn_t) pred_gte1);
-	any[1] = dl_any(list, (pred_fn_t) pred_lte1);
+	any[0] = dl_any(list, (pred_fn) pred_gte1);
+	any[1] = dl_any(list, (pred_fn) pred_lte1);
 
 	ck_assert(list->head);
 	ck_assert(list->tail);
@@ -822,11 +822,11 @@ END_TEST
 START_TEST(test_dl_all_empty)
 {
 	bool all;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
-	all = dl_all(list, (pred_fn_t) pred_gte1);
+	all = dl_all(list, (pred_fn) pred_gte1);
 
 	ck_assert(!all);
 
@@ -842,13 +842,13 @@ START_TEST(test_dl_all_single)
 {
 	bool all[2];
 	uint8_t in = 0;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
-	all[0] = dl_all(list, (pred_fn_t) pred_gte1);
-	all[1] = dl_all(list, (pred_fn_t) pred_lte1);
+	all[0] = dl_all(list, (pred_fn) pred_gte1);
+	all[1] = dl_all(list, (pred_fn) pred_lte1);
 
 	ck_assert(!all[0]);
 	ck_assert(all[1]);
@@ -865,7 +865,7 @@ START_TEST(test_dl_all_multiple)
 {
 	bool all[2];
 	uint8_t in[] = {2, 3, 4};
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [1, 2, 3, 4] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -874,8 +874,8 @@ START_TEST(test_dl_all_multiple)
 	dl_push_tail(list, &in[2]);
 
 	/* Check the elements out of order. */
-	all[0] = dl_all(list, (pred_fn_t) pred_gte1);
-	all[1] = dl_all(list, (pred_fn_t) pred_lte1);
+	all[0] = dl_all(list, (pred_fn) pred_gte1);
+	all[1] = dl_all(list, (pred_fn) pred_lte1);
 
 	ck_assert(list->head);
 	ck_assert(list->tail);
@@ -891,11 +891,11 @@ END_TEST
 START_TEST(test_dl_filter_empty)
 {
 	bool changed;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
-	changed = dl_filter(list, (pred_fn_t) pred_gte1);
+	changed = dl_filter(list, (pred_fn) pred_gte1);
 
 	ck_assert(!changed);
 
@@ -911,19 +911,19 @@ START_TEST(test_dl_filter_single)
 {
 	bool changed;
 	uint8_t in = 0;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
-	changed = dl_filter(list, (pred_fn_t) pred_lte1);
+	changed = dl_filter(list, (pred_fn) pred_lte1);
 	ck_assert(!changed);
 
 	ck_assert(list->head);
 	ck_assert(list->tail);
 	ck_assert_int_eq(list->length, 1);
 
-	changed = dl_filter(list, (pred_fn_t) pred_gte1);
+	changed = dl_filter(list, (pred_fn) pred_gte1);
 	ck_assert(changed);
 
 	ck_assert(!list->head);
@@ -938,7 +938,7 @@ START_TEST(test_dl_filter_multiple)
 {
 	bool changed;
 	uint8_t in[] = {0, 2, 0, 2};
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [0, 2, 0, 2] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -948,7 +948,7 @@ START_TEST(test_dl_filter_multiple)
 	dl_push_tail(list, &in[3]);
 
 	/* filter (> 1) [0, 2, 0, 2] -> [0, 0] */
-	changed = dl_filter(list, (pred_fn_t) pred_gte1);
+	changed = dl_filter(list, (pred_fn) pred_gte1);
 
 	ck_assert(changed);
 
@@ -957,7 +957,7 @@ START_TEST(test_dl_filter_multiple)
 	ck_assert_int_eq(list->length, 2);
 
 	/* filter (<= 1) [0, 0] -> [] */
-	changed = dl_filter(list, (pred_fn_t) pred_lte1);
+	changed = dl_filter(list, (pred_fn) pred_lte1);
 
 	ck_assert(changed);
 
@@ -972,11 +972,11 @@ END_TEST
 START_TEST(test_dl_drop_while_empty)
 {
 	bool changed;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
-	changed = dl_drop_while(list, (pred_fn_t) pred_gte1);
+	changed = dl_drop_while(list, (pred_fn) pred_gte1);
 
 	ck_assert(!changed);
 
@@ -992,14 +992,14 @@ START_TEST(test_dl_drop_while_single)
 {
 	bool changed;
 	uint8_t in = 0;
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Singleton List: [0] */
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
 	/* dropWhile (> 1) [0] -> [0] */
-	changed = dl_drop_while(list, (pred_fn_t) pred_gte1);
+	changed = dl_drop_while(list, (pred_fn) pred_gte1);
 
 	ck_assert(!changed);
 	ck_assert(list->head);
@@ -1007,7 +1007,7 @@ START_TEST(test_dl_drop_while_single)
 	ck_assert_int_eq(list->length, 1);
 
 	/* dropWhile (<= 1) [0] -> [] */
-	changed = dl_drop_while(list, (pred_fn_t) pred_lte1);
+	changed = dl_drop_while(list, (pred_fn) pred_lte1);
 
 	ck_assert(changed);
 	ck_assert(!list->head);
@@ -1022,7 +1022,7 @@ START_TEST(test_dl_drop_while_multiple)
 {
 	bool changed;
 	uint8_t in[6] = {0, 0, 2, 2, 0, 0};
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [0, 0, 2, 2, 0, 0] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -1034,7 +1034,7 @@ START_TEST(test_dl_drop_while_multiple)
 	dl_push_tail(list, &in[5]);
 
 	/* dropWhile (<= 1) [0, 0, 2, 2, 0, 0] -> [2, 2, 0, 0] */
-	changed = dl_drop_while(list, (pred_fn_t) pred_lte1);
+	changed = dl_drop_while(list, (pred_fn) pred_lte1);
 
 	ck_assert(changed);
 	ck_assert(list->head);
@@ -1042,7 +1042,7 @@ START_TEST(test_dl_drop_while_multiple)
 	ck_assert_int_eq(list->length, 4);
 
 	/* dropWhile (> 1) [2, 2, 0, 0] -> [0, 0]*/
-	changed = dl_drop_while(list, (pred_fn_t) pred_gte1);
+	changed = dl_drop_while(list, (pred_fn) pred_gte1);
 
 	ck_assert(changed);
 	ck_assert(list->head);
@@ -1056,11 +1056,11 @@ END_TEST
 START_TEST(test_dl_take_while_empty)
 {
 	bool changed;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
-	changed = dl_take_while(list, (pred_fn_t) pred_gte1);
+	changed = dl_take_while(list, (pred_fn) pred_gte1);
 
 	ck_assert(!changed);
 
@@ -1076,14 +1076,14 @@ START_TEST(test_dl_take_while_single)
 {
 	bool changed;
 	uint8_t in = 0;
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Singleton List: [0] */
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
 	/* takeWhile (<= 1) [0] -> [0] */
-	changed = dl_take_while(list, (pred_fn_t) pred_lte1);
+	changed = dl_take_while(list, (pred_fn) pred_lte1);
 
 	ck_assert(!changed);
 	ck_assert(list->head);
@@ -1091,7 +1091,7 @@ START_TEST(test_dl_take_while_single)
 	ck_assert_int_eq(list->length, 1);
 
 	/* takeWhile (> 1) [0] -> [] */
-	changed = dl_take_while(list, (pred_fn_t) pred_gte1);
+	changed = dl_take_while(list, (pred_fn) pred_gte1);
 
 	ck_assert(changed);
 	ck_assert(!list->head);
@@ -1106,7 +1106,7 @@ START_TEST(test_dl_take_while_multiple)
 {
 	bool changed;
 	uint8_t in[] = {1, 0, 2};
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create linked list: [1, 0, 2] */
 	dl_alloc(&list, sizeof(uint8_t));
@@ -1115,7 +1115,7 @@ START_TEST(test_dl_take_while_multiple)
 	dl_push_tail(list, &in[2]);
 
 	/* takeWhile (<= 1) [1, 0, 2] -> [1, 0] */
-	changed = dl_take_while(list, (pred_fn_t) pred_lte1);
+	changed = dl_take_while(list, (pred_fn) pred_lte1);
 
 	ck_assert(changed);
 	ck_assert(list->head);
@@ -1123,7 +1123,7 @@ START_TEST(test_dl_take_while_multiple)
 	ck_assert_int_eq(list->length, 2);
 
 	/* dropWhile (> 1) [1, 0] -> [1]*/
-	changed = dl_take_while(list, (pred_fn_t) pred_gte1);
+	changed = dl_take_while(list, (pred_fn) pred_gte1);
 
 	ck_assert(changed);
 	ck_assert(list->head);
@@ -1134,7 +1134,7 @@ START_TEST(test_dl_take_while_multiple)
 }
 END_TEST
 
-uint8_t * map_fn(uint8_t * data)
+uint8_t * map_fn_inplace(uint8_t * data)
 {
 	(*data)++;
 	return data;
@@ -1153,12 +1153,12 @@ uint8_t * map_fn_newptr(uint8_t * data)
 
 START_TEST(test_dl_map_empty)
 {
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, 0);
 
-	dl_map(list, (map_fn_t) map_fn);
-	dl_map(list, (map_fn_t) map_fn_newptr);
+	dl_map(list, (map_fn) map_fn_inplace);
+	dl_map(list, (map_fn) map_fn_newptr);
 
 	ck_assert(!list->head);
 	ck_assert(!list->tail);
@@ -1172,15 +1172,15 @@ START_TEST(test_dl_map_single)
 {
 	uint8_t in = 1;
 	uint8_t * out;
-	struct linked_list * list;
+	struct double_list * list;
 
 	/* Create single element list [1] */
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
 	/* Map two increment functions over the list. */
-	dl_map(list, (map_fn_t) map_fn); /* [1] -> [2] */
-	dl_map(list, (map_fn_t) map_fn_newptr); /* [2] -> [3] */
+	dl_map(list, (map_fn) map_fn_inplace); /* [1] -> [2] */
+	dl_map(list, (map_fn) map_fn_newptr); /* [2] -> [3] */
 	out = dl_fetch(list, 0);
 
 	ck_assert(list->head);
@@ -1201,7 +1201,7 @@ START_TEST(test_dl_map_multiple)
 	uint8_t * out1;
 	uint8_t * out2;
 	uint8_t * out3;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in1));
 
@@ -1211,9 +1211,9 @@ START_TEST(test_dl_map_multiple)
 	dl_push_tail(list, &in3);
 
 	/* [1, 2, 3] -> [2, 3, 4] */
-	dl_map(list, (map_fn_t) map_fn);
+	dl_map(list, (map_fn) map_fn_inplace);
 	/* [2, 3, 4] -> [3, 4, 5] */
-	dl_map(list, (map_fn_t) map_fn_newptr);
+	dl_map(list, (map_fn) map_fn_newptr);
 
 	out1 = dl_fetch(list, 0);
 	out2 = dl_fetch(list, 1);
@@ -1233,7 +1233,7 @@ END_TEST
 
 START_TEST(test_dl_reverse_empty)
 {
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -1251,7 +1251,7 @@ START_TEST(test_dl_reverse_single)
 {
 	uint8_t in = 1;
 	uint8_t * out;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
@@ -1274,7 +1274,7 @@ START_TEST(test_dl_reverse_multiple)
 {
 	uint8_t in[3] = {1, 2, 3};
 	uint8_t * out[3];
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
@@ -1308,7 +1308,7 @@ START_TEST(test_dl_reverse_multiple)
 END_TEST
 
 /**
- * foldr_fn() - Right folding function for testing.
+ * foldr_fn_inplace() - Right folding function for testing.
  * @c: A constant byte integer
  * @acc: The byte integer currently in the accumulator
  *
@@ -1317,14 +1317,14 @@ END_TEST
  * know that since the addresses match, the accumulator has already been
  * updated.
  */
-int8_t * foldr_fn(const int8_t * c, int8_t * acc)
+int8_t * foldr_fn_inplace(const int8_t * c, int8_t * acc)
 {
 	*acc = (*c) - (*acc);
 	return acc;
 }
 
 /**
- * foldl_fn() - Left folding function for testing.
+ * foldl_fn_inplace() - Left folding function for testing.
  * @acc: The byte integer currently in the accumulator
  * @c: A constant byte integer
  *
@@ -1333,7 +1333,7 @@ int8_t * foldr_fn(const int8_t * c, int8_t * acc)
  * know that since the addresses match, the accumulator has already been
  * updated.
  */
-int8_t * foldl_fn(int8_t * acc, const int8_t * c)
+int8_t * foldl_fn_inplace(int8_t * acc, const int8_t * c)
 {
 	*acc = (*acc) - (*c);
 	return acc;
@@ -1365,12 +1365,12 @@ START_TEST(test_dl_foldr_empty)
 	int8_t init = 0;
 	int8_t * out1;
 	int8_t * out2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(uint8_t));
 
-	out1 = dl_foldr(list, (foldr_fn_t) foldr_fn, &init);
-	out2 = dl_foldr(list, (foldr_fn_t) generic_fold_fn, &init);
+	out1 = dl_foldr(list, (foldr_fn) foldr_fn_inplace, &init);
+	out2 = dl_foldr(list, (foldr_fn) generic_fold_fn, &init);
 
 	ck_assert(out1);
 	ck_assert(out2);
@@ -1393,13 +1393,13 @@ START_TEST(test_dl_foldr_single)
 	int8_t init = 0;
 	int8_t * out1;
 	int8_t * out2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
-	out1 = dl_foldr(list, (foldr_fn_t) foldr_fn, &init);
-	out2 = dl_foldr(list, (foldr_fn_t) generic_fold_fn, &init);
+	out1 = dl_foldr(list, (foldr_fn) foldr_fn_inplace, &init);
+	out2 = dl_foldr(list, (foldr_fn) generic_fold_fn, &init);
 
 	ck_assert(out1);
 	ck_assert_int_eq(*out1, 1);
@@ -1423,7 +1423,7 @@ START_TEST(test_dl_foldr_multiple)
 	int8_t init = 0;
 	int8_t * out1;
 	int8_t * out2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(int8_t));
 
@@ -1432,8 +1432,8 @@ START_TEST(test_dl_foldr_multiple)
 	dl_push_tail(list, &in3);
 
 	/* foldr (-) 0 [1, 2, 3] -> 2 */
-	out1 = dl_foldr(list, (foldr_fn_t) foldr_fn, &init);
-	out2 = dl_foldr(list, (foldr_fn_t) generic_fold_fn, &init);
+	out1 = dl_foldr(list, (foldr_fn) foldr_fn_inplace, &init);
+	out2 = dl_foldr(list, (foldr_fn) generic_fold_fn, &init);
 
 	ck_assert(out1);
 	ck_assert(out2);
@@ -1455,12 +1455,12 @@ START_TEST(test_dl_foldl_empty)
 	int8_t init = 0;
 	int8_t * out1;
 	int8_t * out2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(int8_t));
 
-	out1 = dl_foldl(list, (foldl_fn_t) foldl_fn, &init);
-	out2 = dl_foldl(list, (foldl_fn_t) generic_fold_fn, &init);
+	out1 = dl_foldl(list, (foldl_fn) foldl_fn_inplace, &init);
+	out2 = dl_foldl(list, (foldl_fn) generic_fold_fn, &init);
 
 	ck_assert(out1);
 	ck_assert(out2);
@@ -1483,14 +1483,14 @@ START_TEST(test_dl_foldl_single)
 	int8_t init = 0;
 	int8_t * out1;
 	int8_t * out2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(in));
 	dl_push_head(list, &in);
 
 	/* foldl (-) 0 [1] -> -1 */
-	out1 = dl_foldl(list, (foldl_fn_t) foldl_fn, &init);
-	out2 = dl_foldl(list, (foldl_fn_t) generic_fold_fn, &init);
+	out1 = dl_foldl(list, (foldl_fn) foldl_fn_inplace, &init);
+	out2 = dl_foldl(list, (foldl_fn) generic_fold_fn, &init);
 
 	ck_assert(out1);
 	ck_assert(out2);
@@ -1515,7 +1515,7 @@ START_TEST(test_dl_foldl_multiple)
 	int8_t init = 0;
 	int8_t * out1;
 	int8_t * out2;
-	struct linked_list * list;
+	struct double_list * list;
 
 	dl_alloc(&list, sizeof(int8_t));
 
@@ -1524,8 +1524,8 @@ START_TEST(test_dl_foldl_multiple)
 	dl_push_tail(list, &in3);
 
 	/* foldl (-) 0 [1, 2, 3] -> -6 */
-	out1 = dl_foldl(list, (foldl_fn_t) foldl_fn, &init);
-	out2 = dl_foldl(list, (foldl_fn_t) generic_fold_fn, &init);
+	out1 = dl_foldl(list, (foldl_fn) foldl_fn_inplace, &init);
+	out2 = dl_foldl(list, (foldl_fn) generic_fold_fn, &init);
 
 	ck_assert(out1);
 	ck_assert(out2);
